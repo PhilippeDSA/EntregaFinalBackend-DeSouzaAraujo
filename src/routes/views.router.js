@@ -8,7 +8,7 @@ const router = Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const productsPath = path.join(__dirname, "../products.json")
+const productsPath = path.join(__dirname, "../data/product.json")
 
 router.get("/home", (req, res) => {
     const products = JSON.parse(fs.readFileSync(productsPath, "utf-8"));

@@ -5,12 +5,11 @@ import cartRouter from "./src/routes/cart.router.js";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
-import fs from "fs";
 import viewsRouter from "./src/routes/views.router.js"
 import ProductManager from "./src/manager/productManager.js";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 
 const app = express();
 const PORT = 8080;
@@ -25,59 +24,50 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//Rutas
-app.use("/api/products", productsRouter);
-app.use("/", viewsRouter);
-app.use("/api/cart", cartRouter);
-app.use(express.json());
-
-//Servidor Http
+// Servidor HTTP
 const httpServer = app.listen(PORT, () =>
-  console.log(`Servidor Corriendo  en puerto${PORT}`));
+  console.log(`Servidor Corriendo en puerto ${PORT}`)
+);
 
-
-
-
+// Websocket server
 const io = new Server(httpServer);
-let products = [];
+app.use((req,rex,next)=>{
+  req.io=io;
+  next();
+});
 
-const productsPath = path.join(__dirname, "products.json");
-if (fs.existsSync(productsPath)) {
-  products = JSON.parse(fs.readFileSync(productsPath, "utf-8"));
-}
 
-//Conexión Web socket
-io.on("connection", (socket) => {
+// inyectar io en req
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+//instanciar product manager unificado
+const productManager = new ProductManager(path.join(__dirname, "src", "data", "product.json"));
+
+
+// SOCKET.IO
+io.on("connection", async (socket) => {
   console.log("Cliente conectado via WebSocket♥");
 
-  //Enviar Lista Inicial
-  socket.emit("productosActualizados", products);
+  //Enviar lista inicial:
+  socket.emit("productsUpdated", await productManager.getProducts());
 
-  //Agregar Productos
-  socket.on("newProduct", (data) => {
-    const newProduct = {
-      id: Date.now().toString(),
-      ...data
-    };
-    products.push(newProduct);
-
-    fs.writeFileSync(productsPath, JSON.stringify(products, null, 2));
-    io.emit("productosActualizados", products);
+  //Agregar producto:
+  socket.on("addProduct", async (data) => {
+    await productManager.addProduct(data);
+    io.emit("productsUpdated", await productManager.getProducts());
   });
 
-  //Eliminar
-  socket.on("deleteProduct", (id) => {
-    products = products.filter((p) => p.id !== id);
-
-
-    fs.writeFileSync(productsPath, JSON.stringify(products, null, 2));
-    io.emit("productosActualizados", products);
+  //Eliminar producto:
+  socket.on("deleteProduct", async (id) => {
+    await productManager.deleteProduct(id);
+    io.emit("productsUpdated", await productManager.getProducts());
   });
+});
 
-})
-
-
-
-
-
-
+//Rutas
+app.use("/api/products", productsRouter);
+app.use("/api/cart", cartRouter);
+app.use("/", viewsRouter);
