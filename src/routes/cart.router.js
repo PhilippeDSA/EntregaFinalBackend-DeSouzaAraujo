@@ -1,25 +1,25 @@
 import { Router } from "express";
-import CartManager from "../manager/cartManager.js";
+import CartDao from "../dao/CartDao.js";
+const cartService = new CartDao();
 
 const router = Router();
-const cartManager = new CartManager("./src/data/carts.json");
 
 // POST /api/carts
-router.post("/", (req, res) => {
-  const cart = cartManager.createCart();
+router.post("/", async (req, res) => {
+  const cart = await cartService.createCart();
   res.status(201).json(cart);
 });
 
 // GET /api/carts/:cid
-router.get("/:cid", (req, res) => {
-  const cart = cartManager.getCartById(req.params.cid);
+router.get("/:cid", async (req, res) => {
+  const cart = await cartService.getCartById(req.params.cid);
   if (!cart) return res.status(404).json({ message: "Carrito no encontrado" });
-  res.json(cart.products);
+  res.json(cart);
 });
 
 // POST /api/carts/:cid/product/:pid
-router.post("/:cid/product/:pid", (req, res) => {
-  const cart = cartManager.addProductToCart(req.params.cid, req.params.pid);
+router.post("/:cid/product/:pid", async (req, res) => {
+  const cart = await cartService.addProductToCart(req.params.cid, req.params.pid);
   if (!cart) return res.status(404).json({ message: "Carrito no encontrado" });
   res.json(cart);
 });
