@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
-import CartDao from "../dao/CartDao";
-const cartService = new CartDao();
+
 
 const cartSchema = new mongoose.Schema({
     products: [{

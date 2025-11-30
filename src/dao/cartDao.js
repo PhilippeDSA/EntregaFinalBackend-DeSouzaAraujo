@@ -1,4 +1,4 @@
-import { CartModel } from "../models/cartmodel";
+import { CartModel } from "../models/cartmodel.js";
 
 export default class CartDao {
     getCartById = async (cid) => {

@@ -12,8 +12,10 @@
   "author": "Philippe De Souza Araujo",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.3",
+    "mongoose-paginate-v2": "^1.9.1",
     "socket.io": "^4.8.1",
     "uuid": "^13.0.0"
   },

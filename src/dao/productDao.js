@@ -1,20 +1,24 @@
-import { ProductModel } from "../models/productmodel";
+import { ProductModel } from "../models/productmodel.js";
 
-export default class ProductDao {
-    getProducts = async () => {
+export default class productDao {
+
+    async getProducts() {
         return await ProductModel.find();
     }
 
-    getProductById = async (pid) => {
-        return await ProductModel.findById(pid);
+    async getProductById(id) {
+        return await ProductModel.findById(id);
     }
-    createProduct = async (productData) => {
-        return await ProductModel.create(productData);
+
+    async createProduct(data) {
+        return await ProductModel.create(data);
     }
-    updateProduct = async (pid, productData) => {
-        return await ProductModel.findByIdAndUpdate(pid, productData, { new: true });
+
+    async updateProduct(id, data) {
+        return await ProductModel.findByIdAndUpdate(id, data, { new: true });
     }
-    deleteProduct = async (pid) => {
-        return await ProductModel.findByIdAndDelete(pid);
+
+    async deleteProduct(id) {
+        return await ProductModel.findByIdAndDelete(id);
     }
 }

@@ -1,14 +1,48 @@
 import { Router } from "express";
-import ProductDao from "../dao/productDao";
-const productService = new ProductDao();
+import productDao from "../dao/productDao.js"
+import { ProductModel } from "../models/productmodel.js";
+const productService = new productDao();
 
 const router = Router();
 
 // GET /api/products
 router.get("/", async (req, res) => {
-  const products = await productService.getProducts();
-  res.json(products);
+  try {
+    const { page = 1, limit = 10, sort, query } = req.query;
+
+    let filter = {};
+    if (query) filter.category = query;
+
+    let sortOption = {};
+    if (sort === "asc") sortOption.price = 1;
+    else if (sort === "desc") sortOption.price = -1;
+
+    const result = await ProductModel.paginate(filter, {
+      page,
+      limit,
+      sort: sortOption,
+      lean: true
+    });
+
+    res.json({
+      status: "success",
+      payload: result.docs,
+      totalPages: result.totalPages,
+      prevPage: result.prevPage,
+      nextPage: result.nextPage,
+      page: result.page,
+      hasPrevPage: result.hasPrevPage,
+      hasNextPage: result.hasNextPage,
+      prevLink: result.hasPrevPage ? `/api/products?page=${result.prevPage}` : null,
+      nextLink: result.hasNextPage ? `/api/products?page=${result.nextPage}` : null,
+    });
+
+  } catch (error) {
+    console.error("Error en paginación", error);
+    res.status(500).json({ status: "error", error });
+  }
 });
+
 
 // GET /api/products/:pid
 router.get("/:pid", async (req, res) => {

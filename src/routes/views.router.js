@@ -1,24 +1,30 @@
 import { Router } from "express";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { ProductModel } from "../models/productmodel.js"
+
 
 
 const router = Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-const productsPath = path.join(__dirname, "../data/product.json")
 
-router.get("/home", (req, res) => {
-    const products = JSON.parse(fs.readFileSync(productsPath, "utf-8"));
-    res.render("home", { products });
+//home-page
+router.get("/home", async (req, res) => {
+    try {
+        const products = await ProductModel.find().lean();
+        res.render("home", { products });
+    } catch (error) {
+        console.error("Error al obtener Productos", error);
+        res.status(500).send("Error interno del servidor");
+    };
 });
-router.get("/realtimeproducts", (req, res) => {
+//realTimeProducts
+router.get("/realTimeProducts", async (req, res) => {
     res.render("realTimeProducts");
 });
 
+//redirect
 router.get("/", (req, res) => {
     res.redirect("/home");
 });
+
+
 export default router;
