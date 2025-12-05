@@ -1,0 +1,68 @@
+<div class="product-list">
+    <h1>🛒 Productos Disponibles</h1>
+
+    {{#if payload.docs.length}}
+    <div class="products-grid">
+        {{#each payload.docs}}
+        <div class="product-card">
+            <h2>{{this.title}}</h2>
+            <p class="description">{{this.description}}</p>
+            <p class="price">Precio: ${{this.price}}</p>
+
+            {{!-- El botón usa la clase y el data-id para script products.js --}}
+            <button class="add-to-cart" data-id="{{this._id}}" data-cart-id="{{../cartId}}">
+                Agregar al carrito
+            </button>
+        </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <p class="no-products">No hay productos disponibles en este momento.</p>
+    {{/if}}
+
+    <hr>
+
+    {{!-- Paginación --}}
+    <div class="pagination">
+        Página {{payload.page}} de {{payload.totalPages}}
+
+        {{#if payload.hasPrevPage}}
+        <a href="{{payload.prevLink}}">Anterior</a>
+        {{/if}}
+
+        {{#if payload.hasNextPage}}
+        <a href="{{payload.nextLink}}">Siguiente</a>
+        {{/if}}
+    </div>
+</div>
+
+{{!-- Incluye el script de manejo de botones --}}
+<script src="/js/products.js"></script>
+
+<style>
+    /* Estilos básicos para mejor visualización */
+    .products-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .product-card {
+        border: 1px solid #ccc;
+        padding: 15px;
+        width: 300px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .price {
+        font-weight: bold;
+        color: green;
+    }
+
+    .pagination {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #eee;
+    }
+</style>

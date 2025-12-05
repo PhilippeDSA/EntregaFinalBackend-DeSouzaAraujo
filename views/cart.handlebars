@@ -1,0 +1,51 @@
+<h1>Carrito</h1>
+
+{{#if cart.products.length}}
+<ul>
+    {{#each cart.products}}
+    <li style="margin-bottom: 20px;">
+        <strong>{{this.product.title}}</strong>
+        <br>
+        Precio: ${{this.product.price}}
+        <br>
+        Cantidad: {{this.quantity}}
+
+        <br><br>
+
+        <!-- Aumentar cantidad -->
+        <form action="/api/carts/{{../cart._id}}/product/{{this.product._id}}?_method=PUT" method="POST">
+            <input type="hidden" name="quantity" value="{{inc this.quantity}}">
+            <button>+</button>
+        </form>
+
+        <!-- Disminuir cantidad -->
+        <form action="/api/carts/{{../cart._id}}/product/{{this.product._id}}?_method=PUT" method="POST">
+            <input type="hidden" name="quantity" value="{{dec this.quantity}}">
+            <button>-</button>
+        </form>
+
+
+        <!-- Eliminar producto -->
+        <form action="/api/carts/{{../cart._id}}/product/{{this.product._id}}" method="POST" style="display:inline;">
+            <input type="hidden" name="_method" value="delete">
+            <button type="submit" style="color:red;">Eliminar</button>
+        </form>
+
+    </li>
+    {{/each}}
+</ul>
+
+<hr>
+
+<!-- Total calculado en backend -->
+<h3>Total: ${{total}}</h3>
+
+<!-- Vaciar carrito -->
+<form action="/api/carts/{{cart._id}}" method="POST">
+    <input type="hidden" name="_method" value="delete">
+    <button type="submit" style="color:red; font-weight:bold;">Vaciar carrito</button>
+</form>
+
+{{else}}
+<p>El carrito está vacío.</p>
+{{/if}}
